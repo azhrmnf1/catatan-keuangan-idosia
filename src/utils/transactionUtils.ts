@@ -67,54 +67,6 @@ export const categories = {
 };
 
 export const getDefaultTransactions = (): Transaction[] => {
-  return [
-    {
-      id: generateId(),
-      amount: 5000000,
-      description: 'Gaji Bulanan',
-      category: 'Gaji',
-      date: new Date(2023, 9, 1),
-      type: 'INCOME',
-    },
-    {
-      id: generateId(),
-      amount: 1000000,
-      description: 'Bonus Kinerja',
-      category: 'Bonus',
-      date: new Date(2023, 9, 5),
-      type: 'INCOME',
-    },
-    {
-      id: generateId(),
-      amount: 500000,
-      description: 'Makan di Restoran',
-      category: 'Makanan',
-      date: new Date(2023, 9, 10),
-      type: 'EXPENSE',
-    },
-    {
-      id: generateId(),
-      amount: 300000,
-      description: 'Bensin',
-      category: 'Transportasi',
-      date: new Date(2023, 9, 12),
-      type: 'EXPENSE',
-    },
-    {
-      id: generateId(),
-      amount: 1500000,
-      description: 'Bayar Sewa Apartemen',
-      category: 'Tagihan',
-      date: new Date(2023, 9, 15),
-      type: 'EXPENSE',
-    },
-    {
-      id: generateId(),
-      amount: 750000,
-      description: 'Proyek Freelance',
-      category: 'Lainnya',
-      date: new Date(2023, 9, 20),
-      type: 'INCOME',
-    },
-  ];
+  return []; // Return empty array instead of dummy data
 };
+

@@ -16,7 +16,7 @@ const Index = () => {
   const { toast } = useToast();
   
   useEffect(() => {
-    // Load transactions from localStorage or use default
+    // Load transactions from localStorage or use empty array
     const savedTransactions = localStorage.getItem('transactions');
     if (savedTransactions) {
       try {
@@ -29,10 +29,10 @@ const Index = () => {
         setTransactions(fixedTransactions);
       } catch (error) {
         console.error('Error parsing saved transactions', error);
-        setTransactions(getDefaultTransactions());
+        setTransactions([]); // Use empty array instead of default transactions
       }
     } else {
-      setTransactions(getDefaultTransactions());
+      setTransactions([]); // Use empty array instead of default transactions
     }
   }, []);
 
