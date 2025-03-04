@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { WalletIcon, BarChart2Icon, HistoryIcon, PlusIcon, HomeIcon } from 'lucide-react';
+import { WalletIcon, BarChart2Icon, HistoryIcon, PlusIcon, HomeIcon, InfoIcon } from 'lucide-react';
 
 type NavItem = {
   label: string;
@@ -25,6 +25,11 @@ const navItems: NavItem[] = [
     label: 'Laporan',
     href: '/reports',
     icon: <BarChart2Icon className="w-5 h-5" />,
+  },
+  {
+    label: 'Tentang',
+    href: '/about',
+    icon: <InfoIcon className="w-5 h-5" />,
   },
 ];
 
