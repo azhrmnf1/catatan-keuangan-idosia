@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
-import { CalendarIcon, XIcon } from 'lucide-react';
+import { CalendarIcon } from 'lucide-react';
 import { 
   Select, 
   SelectContent, 
@@ -28,16 +28,45 @@ interface TransactionFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (transaction: any) => void;
+  editTransaction?: any;
 }
 
-const TransactionForm: React.FC<TransactionFormProps> = ({ isOpen, onClose, onSave }) => {
+const TransactionForm: React.FC<TransactionFormProps> = ({ 
+  isOpen, 
+  onClose, 
+  onSave, 
+  editTransaction 
+}) => {
   const [type, setType] = useState<TransactionType>('EXPENSE');
   const [amount, setAmount] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [category, setCategory] = useState<string>('');
   const [date, setDate] = useState<Date>(new Date());
+  const [isEditing, setIsEditing] = useState(false);
   const amountInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Setup form for editing if editTransaction is provided
+  useEffect(() => {
+    if (editTransaction) {
+      setIsEditing(true);
+      setType(editTransaction.type);
+      setDescription(editTransaction.description);
+      setCategory(editTransaction.category);
+      setDate(new Date(editTransaction.date));
+      
+      // Format the amount for display
+      const formatted = new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(editTransaction.amount);
+      setAmount(formatted);
+    } else {
+      setIsEditing(false);
+    }
+  }, [editTransaction]);
 
   useEffect(() => {
     if (isOpen && amountInputRef.current) {
@@ -50,22 +79,26 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ isOpen, onClose, onSa
   // Reset form when closed
   useEffect(() => {
     if (!isOpen) {
-      setType('EXPENSE');
-      setAmount('');
-      setDescription('');
-      setCategory('');
-      setDate(new Date());
+      if (!editTransaction) {
+        setType('EXPENSE');
+        setAmount('');
+        setDescription('');
+        setCategory('');
+        setDate(new Date());
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, editTransaction]);
 
   // Set default category when type changes
   useEffect(() => {
-    if (type === 'INCOME') {
-      setCategory(categories.INCOME[0]);
-    } else {
-      setCategory(categories.EXPENSE[0]);
+    if (!category || (editTransaction && type !== editTransaction.type)) {
+      if (type === 'INCOME') {
+        setCategory(categories.INCOME[0]);
+      } else {
+        setCategory(categories.EXPENSE[0]);
+      }
     }
-  }, [type]);
+  }, [type, category, editTransaction]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,8 +123,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ isOpen, onClose, onSa
       return;
     }
 
-    const newTransaction = {
-      id: generateId(),
+    const transaction = {
+      id: isEditing ? editTransaction.id : generateId(),
       amount: parsedAmount,
       description,
       category,
@@ -99,12 +132,16 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ isOpen, onClose, onSa
       type,
     };
 
-    onSave(newTransaction);
+    onSave(transaction);
     toast({
-      title: `${type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran'} berhasil ditambahkan`,
+      title: isEditing 
+        ? "Transaksi berhasil diperbarui" 
+        : `${type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran'} berhasil ditambahkan`,
       description: `${description}: ${new Intl.NumberFormat('id-ID', {
         style: 'currency',
         currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
       }).format(parsedAmount)}`,
     });
     onClose();
@@ -134,7 +171,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ isOpen, onClose, onSa
       <DialogContent className="sm:max-w-md rounded-xl animate-scale-in">
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-semibold">
-            Tambah Transaksi
+            {isEditing ? 'Edit Transaksi' : 'Tambah Transaksi'}
           </DialogTitle>
         </DialogHeader>
         
@@ -240,7 +277,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ isOpen, onClose, onSa
               type="submit" 
               className={`rounded-xl ${type === 'INCOME' ? 'bg-income hover:bg-income/90' : 'bg-expense hover:bg-expense/90'}`}
             >
-              Simpan
+              {isEditing ? 'Perbarui' : 'Simpan'}
             </Button>
           </DialogFooter>
         </form>

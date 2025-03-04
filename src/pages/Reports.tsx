@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import TransactionForm from '@/components/TransactionForm';
@@ -37,11 +36,14 @@ import {
 } from 'recharts';
 import { format, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isWithinInterval } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { useToast } from '@/hooks/use-toast';
 
 const Reports = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
   const [period, setPeriod] = useState('current-month');
+  const { toast } = useToast();
   
   // Load transactions from localStorage
   useEffect(() => {
@@ -60,11 +62,30 @@ const Reports = () => {
       }
     }
   }, []);
+
+  // Save transactions to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+  }, [transactions]);
   
   const handleSaveTransaction = (transaction: Transaction) => {
-    const updatedTransactions = [transaction, ...transactions];
-    setTransactions(updatedTransactions);
-    localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
+    if (editTransaction) {
+      // Update existing transaction
+      const updatedTransactions = transactions.map(t => 
+        t.id === transaction.id ? transaction : t
+      );
+      setTransactions(updatedTransactions);
+      setEditTransaction(null);
+    } else {
+      // Add new transaction
+      const updatedTransactions = [transaction, ...transactions];
+      setTransactions(updatedTransactions);
+    }
+  };
+
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditTransaction(null);
   };
   
   // Filter transactions based on selected period
@@ -270,12 +291,16 @@ const Reports = () => {
         </div>
       </div>
 
-      <Navbar onOpenTransactionForm={() => setIsFormOpen(true)} />
+      <Navbar onOpenTransactionForm={() => {
+        setEditTransaction(null);
+        setIsFormOpen(true);
+      }} />
       
       <TransactionForm 
         isOpen={isFormOpen} 
-        onClose={() => setIsFormOpen(false)} 
+        onClose={handleCloseForm}
         onSave={handleSaveTransaction}
+        editTransaction={editTransaction}
       />
     </div>
   );

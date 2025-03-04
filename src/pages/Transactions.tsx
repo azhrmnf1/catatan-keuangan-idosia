@@ -17,14 +17,17 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, FilterIcon, XIcon } from 'lucide-react';
 import { Transaction } from '@/utils/transactionUtils';
+import { useToast } from '@/hooks/use-toast';
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<Date | null>(null);
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
+  const { toast } = useToast();
   
   // Load transactions from localStorage
   useEffect(() => {
@@ -44,6 +47,11 @@ const Transactions = () => {
       }
     }
   }, []);
+
+  // Save transactions to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+  }, [transactions]);
   
   // Filter transactions when search/filters change
   useEffect(() => {
@@ -83,9 +91,37 @@ const Transactions = () => {
   }, [transactions, searchQuery, typeFilter, dateFilter]);
   
   const handleSaveTransaction = (transaction: Transaction) => {
-    const updatedTransactions = [transaction, ...transactions];
+    if (editTransaction) {
+      // Update existing transaction
+      const updatedTransactions = transactions.map(t => 
+        t.id === transaction.id ? transaction : t
+      );
+      setTransactions(updatedTransactions);
+      setEditTransaction(null);
+    } else {
+      // Add new transaction
+      const updatedTransactions = [transaction, ...transactions];
+      setTransactions(updatedTransactions);
+    }
+  };
+  
+  const handleDeleteTransaction = (id: string) => {
+    const updatedTransactions = transactions.filter(t => t.id !== id);
     setTransactions(updatedTransactions);
-    localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
+    toast({
+      title: "Transaksi dihapus",
+      description: "Transaksi berhasil dihapus",
+    });
+  };
+
+  const handleEditTransaction = (transaction: Transaction) => {
+    setEditTransaction(transaction);
+    setIsFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditTransaction(null);
   };
   
   const clearFilters = () => {
@@ -160,7 +196,11 @@ const Transactions = () => {
           
           <div className="mt-4">
             {filteredTransactions.length > 0 ? (
-              <TransactionList transactions={filteredTransactions} />
+              <TransactionList 
+                transactions={filteredTransactions} 
+                onDelete={handleDeleteTransaction}
+                onEdit={handleEditTransaction}
+              />
             ) : (
               <div className="text-center py-10 text-muted-foreground">
                 {hasActiveFilters ? (
@@ -184,12 +224,16 @@ const Transactions = () => {
         </div>
       </div>
 
-      <Navbar onOpenTransactionForm={() => setIsFormOpen(true)} />
+      <Navbar onOpenTransactionForm={() => {
+        setEditTransaction(null);
+        setIsFormOpen(true);
+      }} />
       
       <TransactionForm 
         isOpen={isFormOpen} 
-        onClose={() => setIsFormOpen(false)} 
+        onClose={handleCloseForm} 
         onSave={handleSaveTransaction}
+        editTransaction={editTransaction}
       />
     </div>
   );

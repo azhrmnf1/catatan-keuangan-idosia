@@ -7,10 +7,13 @@ import TransactionForm from '@/components/TransactionForm';
 import Chart from '@/components/Chart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getDefaultTransactions, Transaction } from '@/utils/transactionUtils';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
+  const { toast } = useToast();
   
   useEffect(() => {
     // Load transactions from localStorage or use default
@@ -39,7 +42,36 @@ const Index = () => {
   }, [transactions]);
 
   const handleSaveTransaction = (transaction: Transaction) => {
-    setTransactions([transaction, ...transactions]);
+    if (editTransaction) {
+      // Update existing transaction
+      const updatedTransactions = transactions.map(t => 
+        t.id === transaction.id ? transaction : t
+      );
+      setTransactions(updatedTransactions);
+      setEditTransaction(null);
+    } else {
+      // Add new transaction
+      setTransactions([transaction, ...transactions]);
+    }
+  };
+
+  const handleDeleteTransaction = (id: string) => {
+    const updatedTransactions = transactions.filter(t => t.id !== id);
+    setTransactions(updatedTransactions);
+    toast({
+      title: "Transaksi dihapus",
+      description: "Transaksi berhasil dihapus",
+    });
+  };
+
+  const handleEditTransaction = (transaction: Transaction) => {
+    setEditTransaction(transaction);
+    setIsFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditTransaction(null);
   };
 
   return (
@@ -60,7 +92,12 @@ const Index = () => {
             </TabsList>
             
             <TabsContent value="transactions" className="space-y-4">
-              <TransactionList transactions={transactions} limit={5} />
+              <TransactionList 
+                transactions={transactions} 
+                limit={5} 
+                onDelete={handleDeleteTransaction}
+                onEdit={handleEditTransaction}
+              />
             </TabsContent>
             
             <TabsContent value="statistics" className="space-y-6">
@@ -78,12 +115,16 @@ const Index = () => {
         </div>
       </div>
 
-      <Navbar onOpenTransactionForm={() => setIsFormOpen(true)} />
+      <Navbar onOpenTransactionForm={() => {
+        setEditTransaction(null);
+        setIsFormOpen(true);
+      }} />
       
       <TransactionForm 
         isOpen={isFormOpen} 
-        onClose={() => setIsFormOpen(false)} 
+        onClose={handleCloseForm} 
         onSave={handleSaveTransaction}
+        editTransaction={editTransaction}
       />
     </div>
   );
