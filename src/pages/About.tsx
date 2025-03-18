@@ -21,7 +21,7 @@ const About = () => {
               <UserIcon className="h-20 w-20 text-primary/60" />
             </div>
             <CardHeader>
-              <CardTitle>Developer:Azhari M</CardTitle>
+              <CardTitle>Developer: Azhari M</CardTitle>
               <CardDescription>Full Stack Developer</CardDescription>
             </CardHeader>
             <CardContent>
