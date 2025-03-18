@@ -21,12 +21,12 @@ const About = () => {
               <UserIcon className="h-20 w-20 text-primary/60" />
             </div>
             <CardHeader>
-              <CardTitle>Idosia Developer</CardTitle>
+              <CardTitle>Developer:Azhari M</CardTitle>
               <CardDescription>Full Stack Developer</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                Aplikasi Catatan Keuangan Idosia adalah aplikasi pengelolaan keuangan personal yang dirancang untuk membantu pengguna mencatat dan menganalisis pemasukan dan pengeluaran mereka dengan mudah.
+                Aplikasi Catatan Keuangan adalah aplikasi pengelolaan keuangan personal yang dirancang untuk membantu pengguna mencatat dan menganalisis pemasukan dan pengeluaran mereka dengan mudah.
               </p>
               <p className="text-muted-foreground mb-4">
                 Dibangun menggunakan teknologi modern seperti React, TypeScript, dan Tailwind CSS untuk memberikan pengalaman pengguna yang responsif dan intuitif.
@@ -48,7 +48,7 @@ const About = () => {
           <Card className="rounded-xl">
             <CardHeader>
               <CardTitle>Fitur Aplikasi</CardTitle>
-              <CardDescription>Kemampuan utama Catatan Keuangan Idosia</CardDescription>
+              <CardDescription>Kemampuan utama mencatat Keuangan</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
